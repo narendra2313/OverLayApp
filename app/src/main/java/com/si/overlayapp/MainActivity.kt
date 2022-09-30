@@ -5,7 +5,6 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.media.MediaPlayer
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.View.SCROLLBARS_INSIDE_OVERLAY
@@ -120,9 +119,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                 "</html> ",null,null)
         */
 
-        binding.customWebView.post {
-            binding.customWebView.loadUrl(urlsList.first())
-        }
+        binding.customWebView.loadUrl(urlsList.first())
+
 
         binding.tlScore.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
@@ -171,20 +169,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         binding.customWebView.isClickable = true
         binding.customWebView.webChromeClient = WebChromeClient()
         binding.customWebView.settings.cacheMode = WebSettings.LOAD_NO_CACHE
-        binding.customWebView.setBackgroundColor(Color.TRANSPARENT)
         binding.customWebView.scrollBarStyle = SCROLLBARS_INSIDE_OVERLAY
         //binding.customWebView.setBackgroundColor(Color.argb(1, 255, 255, 255))
         //binding.customWebView.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
         //binding.customWebView.layoutMode = MODE_NO_LOCALIZED_COLLATORS
         binding.customWebView.apply {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                settings.mixedContentMode = 0
-                setLayerType(View.LAYER_TYPE_HARDWARE, null)
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                setLayerType(View.LAYER_TYPE_HARDWARE, null)
-            } else {
-                setLayerType(View.LAYER_TYPE_SOFTWARE, null)
-            }
+            setBackgroundColor(Color.TRANSPARENT)
+            setLayerType(View.LAYER_TYPE_SOFTWARE, null)
         }
 
 
@@ -195,7 +186,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         binding.customWebView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(
                 view: WebView?,
-                request: WebResourceRequest?
+                request: WebResourceRequest?,
             ): Boolean {
                 return super.shouldOverrideUrlLoading(view, request)
             }
