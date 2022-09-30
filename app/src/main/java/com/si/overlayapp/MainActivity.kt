@@ -7,13 +7,15 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import android.view.View.SCROLLBARS_INSIDE_OVERLAY
 import android.view.Window
 import android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN
 import android.webkit.*
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.tabs.TabLayout
 import com.si.overlayapp.databinding.ActivityMainBinding
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : BaseActivity<ActivityMainBinding>() {
 
@@ -62,7 +64,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                 if (!binding.popUpDialogBottom.isVisible) {
                     //Toast.makeText(applicationContext, "clicked", Toast.LENGTH_SHORT).show()
                     binding.popUpDialogBottom.isVisible = true
-                    binding.webViewContainer.isVisible = true
+                    addTopTab()
                 }
                 /*else{
                     binding.apply {
@@ -83,18 +85,18 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         }
         webViewSettings()
         setWebViewClient()
-        addTopTab()
     }
 
     private fun addTopTab() {
         binding.tlScore.removeAllTabs()
 
         //val tabListTitle = listOf<String>("VOTE PLAYER", "WHAT WE DO", "OUR CLIENTS")
-        val tabListTitle = listOf<String>("VOTE PLAYER", "Play By Play", "Key Events")
+        val tabListTitle = listOf<String>("Poll", "Play By Play", "Key Events", "Stats")
         val urlsList = listOf<String>(
-            "https://gamingdemo-poll-admin.sportz.io/#/polls?eventId=144&pollId=321&transBg=1",
-            "https://www.sportzinteractive.net/what-we-do",
-            "https://www.sportzinteractive.net/our-clients"
+            "https://gamingdemo-poll-admin.sportz.io/#/polls?eventId=160&transBg=1",
+            "https://demo.sportz.io/demotest/build/html/matchcentre-football.html?gamecode=29638&league=india_sl&tab=pbp",
+            "https://demo.sportz.io/demotest/build/html/matchcentre-football.html?gamecode=29638&league=india_sl&tab=keyevents",
+            "https://demo.sportz.io/demotest/build/html/matchcentre-football.html?gamecode=29638&league=india_sl&tab=stats"
         )
 
         /*val urlsList = listOf<String>("https://gamingdemo-poll-admin.sportz.io/#/polls?eventId=144&pollId=321&transBg=1",
@@ -110,23 +112,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                 addTab(tab)
             }
         }
-        /*binding.customWebView.loadData("<html>\n" +
-                "<head>\n" +
-                "<title>Page Title</title>\n" +
-                "</head>\n" +
-                "<body bgcolor=\"transparent\" style=\"background-color:transparent;\">\n" +
-                "</body>\n" +
-                "</html> ",null,null)
-        */
-
         binding.customWebView.loadUrl(urlsList.first())
 
 
         binding.tlScore.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
-                binding.customWebView.post {
-                    binding.customWebView.loadUrl(urlsList.get(tab?.position ?: 0))
-                }
+                binding.customWebView.loadUrl(urlsList.get(tab?.position ?: 0))
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
@@ -165,11 +156,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     private fun webViewSettings() {
         binding.customWebView.settings.javaScriptEnabled = true
         binding.customWebView.settings.domStorageEnabled = true
+        binding.customWebView.settings.loadWithOverviewMode = true
+        binding.customWebView.settings.loadWithOverviewMode = true
         binding.customWebView.settings.setAppCacheEnabled(false)
         binding.customWebView.isClickable = true
         binding.customWebView.webChromeClient = WebChromeClient()
         binding.customWebView.settings.cacheMode = WebSettings.LOAD_NO_CACHE
-        binding.customWebView.scrollBarStyle = SCROLLBARS_INSIDE_OVERLAY
         //binding.customWebView.setBackgroundColor(Color.argb(1, 255, 255, 255))
         //binding.customWebView.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
         //binding.customWebView.layoutMode = MODE_NO_LOCALIZED_COLLATORS
@@ -178,11 +170,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             setLayerType(View.LAYER_TYPE_SOFTWARE, null)
         }
 
-
     }
 
 
     private fun setWebViewClient() {
+
         binding.customWebView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(
                 view: WebView?,
@@ -192,17 +184,21 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             }
 
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-                //loader.show(true)
-
+                loader.show(true)
+                binding.webViewContainer.isVisible = false
                 super.onPageStarted(view, url, favicon)
-
             }
 
             override fun onPageFinished(view: WebView?, url: String?) {
-                //loader.show(false)
-
+                lifecycleScope.launch {
+                    delay(400)
+                    loader.show(false)
+                    binding.webViewContainer.isVisible = true
+                }
                 super.onPageFinished(view, url)
+
             }
         }
     }
+
 }
